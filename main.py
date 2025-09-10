@@ -24,3 +24,7 @@ prompt = ChatPromptTemplate([
     ("user", user_input)
 ])
 
+chain = prompt | llm | StrOutputParser()
+
+response = chain.invoke({"input": user_input})
+print(response)
