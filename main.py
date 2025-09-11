@@ -29,11 +29,11 @@ llm = ChatGoogleGenerativeAI(
 )
 
 system_prompt = "You are a helpful assistant. You will help the user add tasks."
-user_input = "add task to get a new computer"
 
 prompt = ChatPromptTemplate([
     ("system", system_prompt),
-    ("user", user_input),
+    MessagesPlaceholder("history"),
+    ("user", "{input}"),
     MessagesPlaceholder("agent_scratchpad")
 ])
 
@@ -42,6 +42,10 @@ agent = create_openai_tools_agent(llm, tools, prompt)
 agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=False)
 
 # response = chain.invoke({"input": user_input})
-response = agent_executor.invoke({"input": user_input})
-
-print(response["output"])
+history = []
+while True:
+    user_input = input("You: ")
+    response = agent_executor.invoke({"input": user_input, "history": history})
+    print(response["output"])
+    history.append(HumanMessage(content=user_input))
+    history.append(AIMessage(content=response["output"]))
